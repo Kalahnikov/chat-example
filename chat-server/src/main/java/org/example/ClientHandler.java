@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 public class ClientHandler {
     private Socket socket;
@@ -26,30 +27,87 @@ public class ClientHandler {
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
         username = "User" + userCount++;
-        server.subscribe(this);
         new Thread(() -> {
             try {
-                while(true) {
-                    // /exit -> disconnect()
-                    // /w user message -> user
-
-                    String message = in.readUTF();
-                    if(message.startsWith("/")) {
-                        if(message.equals("/exit")) {
-                            break;
-                        } else if (message.startsWith("/w")) {
-                            server.broadcastMessageToUser(message);
-                        }
-                    } else {
-                        server.broadcastMessage(message);
-                    }
-                }
+                authenticateUser(server);
+                communicateWithUser(server);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
                 disconnect();
             }
         }).start();
+    }
+
+    public void communicateWithUser(Server server) throws IOException{
+        while(true) {
+            // /exit -> disconnect()
+            // /w user message -> user
+
+            String message = in.readUTF();
+            if(message.startsWith("/")) {
+                if(message.equals("/exit")) {
+                    break;
+                } else if (message.startsWith("/w")) {
+                    server.broadcastMessageToUser(message);
+                } else if (message.equals("/list")) {
+                    List<String> userList = server.getUserList();
+                    String joinedUsers =
+                            String.join(", ", userList);
+//                            userList.stream().collect(Collectors.joining(","));
+                    sendMessage("Server: " + joinedUsers);
+                }
+            } else {
+                server.broadcastMessage("Server: " + message);
+            }
+        }
+    }
+
+    public void authenticateUser(Server server) throws IOException{
+        boolean isAuthenticated = false;
+        while (!isAuthenticated) {
+            String message = in.readUTF();
+//            /auth login password
+//            /register login nick password
+            String[] args = message.split(" ");
+            String command = args[0];
+            switch (command) {
+                case "/auth": {
+                    String login = args[1];
+                    String password = args[2];
+                    String username = server.getAuthenticationProvider().getUsernameByLoginAndPassword(login, password);
+                    if (username == null || username.isBlank()) {
+                        sendMessage("Указан неверный логин/пароль");
+                    } else if {
+
+                    } else {
+                        this.username = username;
+                        sendMessage(username + ", добро пожаловать в чат!");
+                        server.subscribe(this);
+                        isAuthenticated = true;
+                    }
+                    break;
+                }
+                case "/register": {
+                    String login = args[1];
+                    String nick = args[2];
+                    String password = args[3];
+                    boolean isRegistred = server.getAuthenticationProvider().register(login, password, nick);
+                    if (!isRegistred) {
+                        sendMessage("Указанный логин/никнейм уже заняты");
+                    } else {
+                        this.username = nick;
+                        sendMessage("Пользователь " + nick + ", добро пожаловать в чат!");
+                        server.subscribe(this);
+                        isAuthenticated = true;
+                    }
+                    break;
+                }
+                default: {
+                    sendMessage("Сначала авторизуйтесь");
+                }
+            }
+        }
     }
 
     public void disconnect() {
@@ -79,7 +137,7 @@ public class ClientHandler {
 
     public void sendMessage(String message) {
         try {
-            out.writeUTF(message);
+            out.writeUTF(message + "\r\n");
         } catch (IOException e) {
             e.printStackTrace();
             disconnect();

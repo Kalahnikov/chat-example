@@ -29,6 +29,18 @@ public class Main extends JFrame implements Runnable {
 
         this.network = network;
 
+        inTextSendButton.addActionListener(event ->
+                {
+                    String text = inTextField.getText();
+                    try {
+                        network.sendMeassage(text);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+        );
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 500);
         setVisible(true);
