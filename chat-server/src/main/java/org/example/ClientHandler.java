@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.List;
 
 public class ClientHandler {
+    User user;
     private Socket socket;
 
     private Server server;
@@ -14,8 +15,6 @@ public class ClientHandler {
     private DataOutputStream out;
 
     private String username;
-
-    private static int userCount = 0;
 
     public String getUsername() {
         return username;
@@ -26,7 +25,6 @@ public class ClientHandler {
         this.server = server;
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-        username = "User" + userCount++;
         new Thread(() -> {
             try {
                 authenticateUser(server);
@@ -34,19 +32,21 @@ public class ClientHandler {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
-                disconnect();
+                disconnect(this);
             }
         }).start();
     }
 
-    public void communicateWithUser(Server server) throws IOException{
-        while(true) {
+    public void communicateWithUser(Server server) throws IOException {
+        while (true) {
             // /exit -> disconnect()
             // /w user message -> user
+            // /list -> getUserList
+            // /kick user -> delete user
 
             String message = in.readUTF();
-            if(message.startsWith("/")) {
-                if(message.equals("/exit")) {
+            if (message.startsWith("/")) {
+                if (message.equals("/exit")) {
                     break;
                 } else if (message.startsWith("/w")) {
                     server.broadcastMessageToUser(message);
@@ -56,6 +56,12 @@ public class ClientHandler {
                             String.join(", ", userList);
 //                            userList.stream().collect(Collectors.joining(","));
                     sendMessage("Server: " + joinedUsers);
+                } else if (message.startsWith("/kick")) {
+                    if (user.getRole().equals(ROLE.ADMIN.toString())) {
+                        server.kickUser(message);
+                    } else {
+                        sendMessage("Server: Вы не являетесь админом. Запрос не доступен");
+                    }
                 }
             } else {
                 server.broadcastMessage("Server: " + message);
@@ -63,7 +69,7 @@ public class ClientHandler {
         }
     }
 
-    public void authenticateUser(Server server) throws IOException{
+    public void authenticateUser(Server server) throws IOException {
         boolean isAuthenticated = false;
         while (!isAuthenticated) {
             String message = in.readUTF();
@@ -71,6 +77,7 @@ public class ClientHandler {
 //            /register login nick password
             String[] args = message.split(" ");
             String command = args[0];
+            Roles roles = new Roles();
             switch (command) {
                 case "/auth": {
                     String login = args[1];
@@ -78,11 +85,14 @@ public class ClientHandler {
                     String username = server.getAuthenticationProvider().getUsernameByLoginAndPassword(login, password);
                     if (username == null || username.isBlank()) {
                         sendMessage("Указан неверный логин/пароль");
-                    } else if {
-
+                    } else if (roles.getAdminLogin().contains(args[1]) && roles.getAdminPassword().contains(args[2])) {
+                        this.username = username;
+                        sendMessage(ROLE.ADMIN.toString() + " " + username + ", добро пожаловать в чат!");
+                        server.subscribe(this);
+                        isAuthenticated = true;
                     } else {
                         this.username = username;
-                        sendMessage(username + ", добро пожаловать в чат!");
+                        sendMessage(ROLE.USER.toString() + " " + username + ", добро пожаловать в чат!");
                         server.subscribe(this);
                         isAuthenticated = true;
                     }
@@ -95,9 +105,14 @@ public class ClientHandler {
                     boolean isRegistred = server.getAuthenticationProvider().register(login, password, nick);
                     if (!isRegistred) {
                         sendMessage("Указанный логин/никнейм уже заняты");
+                    } else if (roles.getAdminLogin().contains(args[1]) && roles.getAdminPassword().contains(args[3])) {
+                        this.username = nick;
+                        sendMessage(ROLE.ADMIN.toString() + " " + username + ", добро пожаловать в чат!");
+                        server.subscribe(this);
+                        isAuthenticated = true;
                     } else {
                         this.username = nick;
-                        sendMessage("Пользователь " + nick + ", добро пожаловать в чат!");
+                        sendMessage(ROLE.USER.toString() + " " + nick + ", добро пожаловать в чат!");
                         server.subscribe(this);
                         isAuthenticated = true;
                     }
@@ -110,9 +125,9 @@ public class ClientHandler {
         }
     }
 
-    public void disconnect() {
-        server.unsubscribe(this);
-        if(socket != null) {
+    public void disconnect(ClientHandler clientHandler) {
+        server.unsubscribe(clientHandler);
+        if (socket != null) {
             try {
                 socket.close();
             } catch (IOException e) {
@@ -140,7 +155,7 @@ public class ClientHandler {
             out.writeUTF(message + "\r\n");
         } catch (IOException e) {
             e.printStackTrace();
-            disconnect();
+            disconnect(this);
         }
     }
 }

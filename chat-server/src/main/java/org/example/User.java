@@ -8,7 +8,6 @@ public class User {
     private String username;
     private String role;
 
-
     public String getLogin() {
         return login;
     }
@@ -23,6 +22,9 @@ public class User {
 
     public String getRole() {
         return role;
+    }
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public User(String login, String password, String username, String role) {

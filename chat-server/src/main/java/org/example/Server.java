@@ -63,4 +63,13 @@ public class Server {
     public synchronized List<String> getUserList(){
         return clients.stream().map(ClientHandler::getUsername).collect(Collectors.toList());
     }
+
+    public synchronized void kickUser(String message){
+        String [] msg = message.split(" ", 2);
+        for (ClientHandler client : clients){
+            if (client.getUsername().equals(msg[1])) {
+                client.disconnect(client);
+            }
+        }
+    }
 }
