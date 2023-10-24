@@ -1,6 +1,5 @@
 package org.example;
 
-import java.util.HashMap;
 import java.util.*;
 
 public class InMemoryAuthenticationProvider implements AuthenticationProvider {
@@ -20,6 +19,15 @@ public class InMemoryAuthenticationProvider implements AuthenticationProvider {
         return null;
     }
 
+    public boolean getRoleByUserRole(String login, String password, String role) {
+        for (User user : users) {
+            if (Objects.equals(user.getPassword(), password) && Objects.equals(user.getLogin(), login) && Objects.equals(user.getRole(), role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public synchronized boolean register(String login, String password, String username) {
         Roles roles = new Roles();
@@ -29,7 +37,7 @@ public class InMemoryAuthenticationProvider implements AuthenticationProvider {
                 return false;
             }
         }
-        if(roles.getAdminLogin().contains(login) && roles.getAdminPassword().contains(password)){
+        if (roles.getAdminLogin().contains(login) && roles.getAdminPassword().contains(password)) {
             role = ROLE.ADMIN.toString();
         } else {
             role = ROLE.USER.toString();

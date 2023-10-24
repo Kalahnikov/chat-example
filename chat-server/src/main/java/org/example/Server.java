@@ -24,7 +24,7 @@ public class Server {
 
 
     public void start() {
-        try(ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Сервер запущен на порту " + port);
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -46,9 +46,10 @@ public class Server {
             client.sendMessage(message);
         }
     }
-    public synchronized void broadcastMessageToUser(String message){
-        String [] msg = message.split(" ", 3);
-        for (ClientHandler client : clients){
+
+    public synchronized void broadcastMessageToUser(String message) {
+        String[] msg = message.split(" ", 3);
+        for (ClientHandler client : clients) {
             if (client.getUsername().equals(msg[1])) {
                 client.sendMessage(msg[2]);
             }
@@ -60,13 +61,13 @@ public class Server {
         broadcastMessage("Клиент: " + clientHandler.getUsername() + " вышел из чата");
     }
 
-    public synchronized List<String> getUserList(){
+    public synchronized List<String> getUserList() {
         return clients.stream().map(ClientHandler::getUsername).collect(Collectors.toList());
     }
 
-    public synchronized void kickUser(String message){
-        String [] msg = message.split(" ", 2);
-        for (ClientHandler client : clients){
+    public synchronized void kickUser(String message) {
+        String[] msg = message.split(" ", 2);
+        for (ClientHandler client : clients) {
             if (client.getUsername().equals(msg[1])) {
                 client.disconnect(client);
             }

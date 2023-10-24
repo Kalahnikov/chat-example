@@ -43,6 +43,7 @@ import java.net.Socket;
             if(socket != null) {
                 try {
                     socket.close();
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -63,7 +64,7 @@ import java.net.Socket;
             }
         }
 
-        public void sendMeassage(String msg) throws IOException {
+        public void sendMessage(String msg) throws IOException {
             out.writeUTF(msg);
         }
     }

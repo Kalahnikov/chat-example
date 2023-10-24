@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.List;
 
 public class ClientHandler {
-    User user;
     private Socket socket;
 
     private Server server;
@@ -57,7 +56,10 @@ public class ClientHandler {
 //                            userList.stream().collect(Collectors.joining(","));
                     sendMessage("Server: " + joinedUsers);
                 } else if (message.startsWith("/kick")) {
-                    if (user.getRole().equals(ROLE.ADMIN.toString())) {
+                    sendMessage("Введите свои логин, пароль и роль в чате");
+                    String examination = in.readUTF();
+                    String[] args = examination.split(" ");
+                    if (server.getAuthenticationProvider().getRoleByUserRole(args[0], args[1], args[2])) {
                         server.kickUser(message);
                     } else {
                         sendMessage("Server: Вы не являетесь админом. Запрос не доступен");

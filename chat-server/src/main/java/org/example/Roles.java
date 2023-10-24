@@ -15,11 +15,11 @@ public class Roles {
     }
 
     public Roles() {
-       this.adminLogin = new ArrayList<>(Arrays.asList("Admin1", "Admin2", "Admin3"));
-       this.adminPassword = new ArrayList<>(Arrays.asList("qqq", "www", "eee"));
+        this.adminLogin = new ArrayList<>(Arrays.asList("Admin1", "Admin2", "Admin3"));
+        this.adminPassword = new ArrayList<>(Arrays.asList("qqq", "www", "eee"));
     }
 
-    public void addAdminIndicator(String login, String password){
+    public void addAdminIndicator(String login, String password) {
         adminLogin.add(login);
         adminPassword.add(password);
     }
