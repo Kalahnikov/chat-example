@@ -8,11 +8,9 @@ import java.util.List;
 
 public class ClientHandler {
     private Socket socket;
-
     private Server server;
     private DataInputStream in;
     private DataOutputStream out;
-
     private String username;
 
     public String getUsername() {
@@ -87,11 +85,6 @@ public class ClientHandler {
                     String username = server.getAuthenticationProvider().getUsernameByLoginAndPassword(login, password);
                     if (username == null || username.isBlank()) {
                         sendMessage("Указан неверный логин/пароль");
-                    } else if (roles.getAdminLogin().contains(args[1]) && roles.getAdminPassword().contains(args[2])) {
-                        this.username = username;
-                        sendMessage(ROLE.ADMIN.toString() + " " + username + ", добро пожаловать в чат!");
-                        server.subscribe(this);
-                        isAuthenticated = true;
                     } else {
                         this.username = username;
                         sendMessage(ROLE.USER.toString() + " " + username + ", добро пожаловать в чат!");
