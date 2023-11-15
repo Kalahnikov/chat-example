@@ -28,7 +28,7 @@ public class Server {
 
     public void start() throws IOException {
         isServerRun = true;
-        try  {
+        try {
             serverSocket = new ServerSocket(port);
             System.out.println("Сервер запущен на порту " + port);
             while (true) {
@@ -42,7 +42,8 @@ public class Server {
             serverSocket.close();
         }
     }
-    public void end(){
+
+    public void end() {
         isServerRun = false;
         try {
             socket.close();
@@ -81,8 +82,8 @@ public class Server {
         return clients.stream().map(ClientHandler::getUsername).collect(Collectors.toList());
     }
 
-    public synchronized void stopClients(){
-        for (ClientHandler client : clients){
+    public synchronized void stopClients() {
+        for (ClientHandler client : clients) {
             client.shutdown();
         }
     }
@@ -95,19 +96,19 @@ public class Server {
                 clientKick = client;
             }
         }
-        if(clientKick != null){
+        if (clientKick != null) {
             clientKick.disconnect();
         }
     }
 
-    public synchronized void changeNick(String change, ClientHandler clientHandler){
+    public synchronized void changeNick(String change, ClientHandler clientHandler) {
         String[] msg = change.split(" ", 2);
         dataBase datBase = new dataBase();
         datBase.setUpdateUsername(msg[0], msg[1]);
         clientHandler.setUsername(msg[1]);
     }
 
-    public synchronized void banTimes(String message, String change){
+    public synchronized void banTimes(String message, String change) {
         dataBase datBase = new dataBase();
         datBase.setUpdateBanUser(message, change);
         kickUser(message);

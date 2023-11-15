@@ -11,7 +11,6 @@ public class inDataBaseAuthenticationProvider implements AuthenticationProvider 
     }
 
 
-
     @Override
     public String getUsernameByLoginAndPassword(String login, String password) {
         dataBase dataBase = new dataBase();

@@ -1,15 +1,16 @@
 package org.example;
 
 public enum ROLE {
-    USER ("User1"),
-    ADMIN ("Admin1");
+    USER("User1"),
+    ADMIN("Admin1");
 
     private String role;
 
     ROLE(String role) {
         this.role = role;
     }
-    public String getRole(){
+
+    public String getRole() {
         return role;
     }
 
