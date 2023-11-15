@@ -25,6 +25,8 @@ public class Main extends JFrame implements Runnable {
         cp.setLayout(new BorderLayout());
         cp.add(BorderLayout.CENTER, outTextArea = new JTextArea());
         outTextArea.setEditable(false);
+        outTextArea.setLineWrap(true);
+        outTextArea.setWrapStyleWord(true);
         cp.add(BorderLayout.SOUTH, southPanel);
 
         this.network = network;

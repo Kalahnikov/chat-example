@@ -1,8 +1,8 @@
 package org.example;
 
 public enum ROLE {
-    USER ("Пользователь"),
-    ADMIN ("Админ");
+    USER ("User1"),
+    ADMIN ("Admin1");
 
     private String role;
 

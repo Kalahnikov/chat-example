@@ -5,5 +5,5 @@ public interface AuthenticationProvider {
 
     boolean register(String login, String password, String username);
 
-    boolean getRoleByUserRole(String login, String password, String role);
+    String getRoleByUserRole(String login, String password, String role);
 }

@@ -1,8 +1,8 @@
 package org.example;
 
-import java.util.List;
-
 public class User {
+
+    private int id;
     private String login;
     private String password;
     private String username;
@@ -28,7 +28,8 @@ public class User {
         this.role = role;
     }
 
-    public User(String login, String password, String username, String role) {
+    public User(int id, String login, String password, String username, String role) {
+        this.id = id;
         this.login = login;
         this.password = password;
         this.username = username;
